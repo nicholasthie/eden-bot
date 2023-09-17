@@ -3,6 +3,7 @@ import { InteractionType, InteractionResponseType } from 'discord-interactions'
 import express, { Request, Response } from 'express'
 import { VerifyDiscordRequest } from './utils.js'
 import { APPLICATION_COMMANDS } from './constants/index.js'
+import { commandLfg } from './commands/lfg/index.js'
 
 const app = express()
 const port = process.env.PORT
@@ -16,7 +17,7 @@ app.get('/', (req: Request, res: Response) => {
 
 app.post('/interactions', async function (req, res) {
   // Interaction type and data
-  const { type, id, data } = req.body
+  const { type, data } = req.body
 
   /**
    * Handle verification requests
@@ -32,14 +33,14 @@ app.post('/interactions', async function (req, res) {
   if (type === InteractionType.APPLICATION_COMMAND) {
     const { name } = data
 
-    if (name === APPLICATION_COMMANDS.LFG) {
-      res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: 'Hi',
-        },
-      })
+    if (name === APPLICATION_COMMANDS.LFP) {
+      commandLfg.handleApplicationCommands(req, res)
     }
+  }
+
+  if (type === InteractionType.MESSAGE_COMPONENT) {
+    // Better way to handle message components based on application commands?
+    commandLfg.handleMessageComponents(req, res)
   }
 })
 
