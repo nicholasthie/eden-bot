@@ -143,7 +143,7 @@ export class CommandLfg extends Command {
     const { members, title } = this.getParty(partyId)
 
     return {
-      content: `New party created!\n${title}\nParty members: ${members
+      content: `New party created!\nParty Name: ${title}\nParty members: ${members
         .map((id) => `<@${id}>`)
         .join(' ')}`,
       components: [
