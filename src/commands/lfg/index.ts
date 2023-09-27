@@ -3,6 +3,10 @@ import {
   InteractionResponseType,
   MessageComponentTypes,
 } from 'discord-interactions'
+import {
+  APIInteractionDataOptionBase,
+  ApplicationCommandOptionType,
+} from 'discord-api-types/v10'
 import { Request, Response } from 'express'
 import { uniq } from 'lodash'
 import { APPLICATION_COMMANDS } from '../../constants/index.js'
@@ -13,7 +17,14 @@ export class CommandLfg extends Command {
   name = APPLICATION_COMMANDS.LFP
   description = 'Create a new party'
   type = 1
-
+  options = [
+    {
+      name: 'gr-title',
+      description: 'The name of the group',
+      type: 3,
+      max_length: 20,
+    },
+  ]
   private parties: Map<string, Party> = new Map()
 
   constructor() {
@@ -27,9 +38,18 @@ export class CommandLfg extends Command {
 
   private appCreateParty(req: Request, res: Response) {
     const partyId = req.body.id
+    const partyTitle =
+      req.body.data?.options?.find(
+        (
+          item: APIInteractionDataOptionBase<
+            ApplicationCommandOptionType,
+            string
+          >,
+        ) => item.name === 'gr-title',
+      )?.value || ''
     const requesterId = req.body.member.user.id
-
-    this.createNewParty(partyId, requesterId)
+    console.log(req)
+    this.createNewParty(partyId, requesterId, partyTitle)
 
     res.send({
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -89,12 +109,13 @@ export class CommandLfg extends Command {
   /** END - Message Components Handlers */
 
   /** START - Party manipulation logic */
-  private createNewParty(partyId: string, creator: string) {
+  private createNewParty(partyId: string, creator: string, title: string) {
     this.parties.set(partyId, {
       id: partyId,
       creator,
       members: [creator],
       createdTimestamp: Date.now(),
+      title,
     })
   }
 
@@ -119,10 +140,10 @@ export class CommandLfg extends Command {
 
   /** START - Party utilities */
   private getPartyData(partyId: string) {
-    const { members } = this.getParty(partyId)
+    const { members, title } = this.getParty(partyId)
 
     return {
-      content: `New party created!\nParty members: ${members
+      content: `New party created!\n${title}\nParty members: ${members
         .map((id) => `<@${id}>`)
         .join(' ')}`,
       components: [
