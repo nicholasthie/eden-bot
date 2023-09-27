@@ -48,7 +48,6 @@ export class CommandLfg extends Command {
         ) => item.name === 'gr-title',
       )?.value || ''
     const requesterId = req.body.member.user.id
-    console.log(req)
     this.createNewParty(partyId, requesterId, partyTitle)
 
     res.send({
