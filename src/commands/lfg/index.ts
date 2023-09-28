@@ -19,10 +19,11 @@ export class CommandLfg extends Command {
   type = 1
   options = [
     {
-      name: 'gr-title',
-      description: 'The name of the group',
+      name: 'title',
+      description: 'The name of the party',
       type: 3,
       max_length: 20,
+      required: false,
     },
   ]
   private parties: Map<string, Party> = new Map()
@@ -45,7 +46,7 @@ export class CommandLfg extends Command {
             ApplicationCommandOptionType,
             string
           >,
-        ) => item.name === 'gr-title',
+        ) => item.name === 'title',
       )?.value || ''
     const requesterId = req.body.member.user.id
     this.createNewParty(partyId, requesterId, partyTitle)
@@ -142,9 +143,9 @@ export class CommandLfg extends Command {
     const { members, title } = this.getParty(partyId)
 
     return {
-      content: `New party created!\nParty Name: ${title}\nParty members: ${members
-        .map((id) => `<@${id}>`)
-        .join(' ')}`,
+      content: `New party created!${
+        title ?? '\nParty Name: ' + title
+      }\nParty members: ${members.map((id) => `<@${id}>`).join(' ')}`,
       components: [
         {
           type: MessageComponentTypes.ACTION_ROW,
