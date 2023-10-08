@@ -3,4 +3,5 @@ export interface Party {
   creator: string
   members: string[]
   createdTimestamp: number
+  title: string
 }
